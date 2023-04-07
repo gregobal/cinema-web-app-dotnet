@@ -17,7 +17,7 @@ public class InMemoryRepository : IRepository
 
     public async Task<List<Genre>> GetAllGenres()
     {
-        await Task.Delay(1000);
+        await Task.Delay(3000);
         return _genres;
     }
 

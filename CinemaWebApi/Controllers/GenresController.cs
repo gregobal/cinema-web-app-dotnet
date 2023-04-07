@@ -1,4 +1,5 @@
 using CinemaWebApi.Entities;
+using CinemaWebApi.Filters;
 using CinemaWebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,12 +17,14 @@ public class GenresController : Controller
     }
     
     [HttpGet]
+    [ResponseCache(Duration = 30)]
     public async Task<ActionResult<List<Genre>>> Get()
     {
         return await _repository.GetAllGenres();
     }
 
     [HttpGet("{id:int}", Name = "getGenre")]
+    [ServiceFilter(typeof(LogActionFilter))]
     public ActionResult<Genre> Get(int id)
     {
         var genre = _repository.GetGenreById(id);
