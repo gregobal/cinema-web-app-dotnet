@@ -21,7 +21,7 @@ public class GenresController : Controller
         return await _repository.GetAllGenres();
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:int}", Name = "getGenre")]
     public ActionResult<Genre> Get(int id)
     {
         var genre = _repository.GetGenreById(id);
@@ -37,7 +37,8 @@ public class GenresController : Controller
     [HttpPost]
     public ActionResult Post([FromBody] Genre genre)
     {
-        return NoContent();
+        _repository.AddGenre(genre);
+        return new CreatedAtRouteResult("getGenre", new {id = genre.Id}, genre);
     }
 
     [HttpPut]

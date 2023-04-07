@@ -25,5 +25,10 @@ public class InMemoryRepository : IRepository
     {
         return _genres.FirstOrDefault(g => g.Id == id);
     }
-    
+
+    public void AddGenre(Genre genre)
+    {
+        genre.Id = _genres.Max(g => g.Id) + 1;
+        _genres.Add(genre);
+    }
 }
