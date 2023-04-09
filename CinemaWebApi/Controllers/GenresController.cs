@@ -51,9 +51,14 @@ public class GenresController : Controller
         return new CreatedAtRouteResult("getGenre", new {id = genre.Id}, genre);
     }
 
-    [HttpPut]
-    public ActionResult Put([FromBody] Genre genre)
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult> Put(int id, [FromBody] GenreCreateDto genreCreateDto)
     {
+        var genre = _mapper.Map<Genre>(genreCreateDto);
+        genre.Id = id;
+        _context.Entry(genre).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+        
         return NoContent();
     }
 
