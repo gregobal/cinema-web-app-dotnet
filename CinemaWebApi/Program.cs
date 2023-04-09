@@ -1,6 +1,6 @@
 using CinemaWebApi;
 using CinemaWebApi.Filters;
-using CinemaWebApi.Services;
+using CinemaWebApi.Utils;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +10,9 @@ builder.Services.AddDbContext<AppDbContext>(opts =>
     opts.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
+
 // Add services to the container.
 builder.Services.AddControllers();
 
@@ -18,7 +21,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Deps from inner services
-builder.Services.AddSingleton<IRepository, InMemoryRepository>();
 builder.Services.AddTransient<LogActionFilter>();
 
 var app = builder.Build();
