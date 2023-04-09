@@ -1,7 +1,9 @@
+using AutoMapper;
+using CinemaWebApi.DTOs;
 using CinemaWebApi.Entities;
 using CinemaWebApi.Filters;
-using CinemaWebApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CinemaWebApi.Controllers;
 
@@ -9,25 +11,27 @@ namespace CinemaWebApi.Controllers;
 [Route("api/genres")]
 public class GenresController : Controller
 {
-    private readonly IRepository _repository;
+    private readonly AppDbContext _context;
+    private readonly IMapper _mapper;
 
-    public GenresController(IRepository repository)
+    public GenresController(AppDbContext context, IMapper mapper)
     {
-        _repository = repository;
+        _context = context;
+        _mapper = mapper;
     }
     
     [HttpGet]
     [ResponseCache(Duration = 30)]
     public async Task<ActionResult<List<Genre>>> Get()
     {
-        return await _repository.GetAllGenres();
+        return await _context.Genres.AsNoTracking().ToListAsync();
     }
 
     [HttpGet("{id:int}", Name = "getGenre")]
     [ServiceFilter(typeof(LogActionFilter))]
-    public ActionResult<Genre> Get(int id)
+    public async Task<ActionResult<Genre>> Get(int id)
     {
-        var genre = _repository.GetGenreById(id);
+        var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Id == id);
 
         if (genre is null)
         {
@@ -38,15 +42,23 @@ public class GenresController : Controller
     }
 
     [HttpPost]
-    public ActionResult Post([FromBody] Genre genre)
+    public async Task<ActionResult<Genre>> Post([FromBody] GenreCreateDto genreCreateDto)
     {
-        _repository.AddGenre(genre);
+        var genre = _mapper.Map<Genre>(genreCreateDto);
+        _context.Add(genre);
+        await _context.SaveChangesAsync();
+        
         return new CreatedAtRouteResult("getGenre", new {id = genre.Id}, genre);
     }
 
-    [HttpPut]
-    public ActionResult Put([FromBody] Genre genre)
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult> Put(int id, [FromBody] GenreCreateDto genreCreateDto)
     {
+        var genre = _mapper.Map<Genre>(genreCreateDto);
+        genre.Id = id;
+        _context.Entry(genre).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+        
         return NoContent();
     }
 
