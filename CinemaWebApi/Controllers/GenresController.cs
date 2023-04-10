@@ -21,7 +21,6 @@ public class GenresController : Controller
     }
     
     [HttpGet]
-    [ResponseCache(Duration = 30)]
     public async Task<ActionResult<List<Genre>>> Get()
     {
         return await _context.Genres.AsNoTracking().ToListAsync();
@@ -62,9 +61,18 @@ public class GenresController : Controller
         return NoContent();
     }
 
-    [HttpDelete]
-    public ActionResult Delete()
+    [HttpDelete("{id:int}")]
+    public async Task<ActionResult> Delete(int id)
     {
+        var exists = await _context.Genres.FindAsync(id);
+        if (exists is null)
+        {
+            return NotFound();
+        }
+
+        _context.Remove(exists);
+        await _context.SaveChangesAsync();
+        
         return NoContent();
     }
 }
