@@ -4,6 +4,7 @@ using CinemaWebApi.Entities;
 using CinemaWebApi.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace CinemaWebApi.Controllers;
 
@@ -11,11 +12,13 @@ namespace CinemaWebApi.Controllers;
 [Route("api/movies")]
 public class MoviesController : Controller
 {
+    private readonly ILogger<MoviesController> _logger;
     private readonly AppDbContext _context;
     private readonly IMapper _mapper;
 
-    public MoviesController(AppDbContext context, IMapper mapper)
+    public MoviesController(ILogger<MoviesController> logger, AppDbContext context, IMapper mapper)
     {
+        _logger = logger;
         _context = context;
         _mapper = mapper;
     }
@@ -41,6 +44,19 @@ public class MoviesController : Controller
             moviesQueryable = moviesQueryable
                 .Where(m => m.ReleaseDate.ToDateTime(TimeOnly.MinValue) > DateTime.Today)
                 .OrderBy(m => m);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filterMoviesDto.OrderingField))
+        {
+            try
+            {
+                moviesQueryable = moviesQueryable.OrderBy(
+                    $"{filterMoviesDto.OrderingField} {(filterMoviesDto.AscendingOrder ? "ascending" : "descending")}");
+            }
+            catch
+            {
+                _logger.LogWarning("Could not order by field " + filterMoviesDto.OrderingField);
+            }
         }
 
         await HttpContext.InsertPaginationParamsInResponse(moviesQueryable, filterMoviesDto.RecordsPerPage);
