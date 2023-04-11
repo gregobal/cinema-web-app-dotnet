@@ -51,7 +51,10 @@ public class MoviesController : Controller
     [HttpGet("{id:int}", Name="getMovie")]
     public async Task<ActionResult<Movie>> Get(int id)
     {
-        var movie = await _context.Movies.FindAsync(id);
+        var movie = await _context.Movies
+            .Include(m => m.Genres).ThenInclude(mg => mg.Genre)
+            .Include(m => m.Actors).ThenInclude(ma => ma.Person)
+            .FirstOrDefaultAsync();
 
         if (movie is null)
         {
