@@ -11,4 +11,6 @@ public class Movie
     public string? Summary { get; set; }
     public DateOnly ReleaseDate { get; set; }
     public Uri? Poster { get; set; }
+    public List<MoviesActors> Actors { get; set; }
+    public List<MoviesGenres> Genres { get; set; }
 }

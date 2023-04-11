@@ -42,6 +42,7 @@ public class MoviesController : Controller
     public async Task<ActionResult> Post([FromBody] MovieCreateDto movieCreateDto)
     {
         var movie = _mapper.Map<Movie>(movieCreateDto);
+        AnnotateActorsOrder(movie);
         _context.Add(movie);
         await _context.SaveChangesAsync();
         return new CreatedAtRouteResult("getMovie", new { id = movie.Id }, movie);
@@ -58,6 +59,10 @@ public class MoviesController : Controller
         }
 
         _mapper.Map(movieUpdateDto, movie);
+
+        await _context.Database.ExecuteSqlInterpolatedAsync(
+            $"delete from MovieActors where MovieId = {movie.Id}; delete from MovieGenres where MovieId = {movie.Id};"); 
+        AnnotateActorsOrder(movie);
         await _context.SaveChangesAsync();
 
         return NoContent();
@@ -76,5 +81,13 @@ public class MoviesController : Controller
         await _context.SaveChangesAsync();
         
         return NoContent();
+    }
+
+    private static void AnnotateActorsOrder(Movie movie)
+    {
+        for (var i = 0; i < movie.Actors.Count; i++)
+        {
+            movie.Actors[i].Order = i;
+        }
     }
 }
