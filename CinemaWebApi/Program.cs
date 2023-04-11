@@ -1,5 +1,6 @@
 using CinemaWebApi;
 using CinemaWebApi.Filters;
+using CinemaWebApi.Services;
 using CinemaWebApi.Utils;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +23,7 @@ builder.Services.AddSwaggerGen();
 
 // Deps from inner services
 builder.Services.AddTransient<LogActionFilter>();
+builder.Services.AddTransient<IHostedService, MovieInHireService>();
 
 var app = builder.Build();
 
