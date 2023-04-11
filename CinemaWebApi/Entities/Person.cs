@@ -13,4 +13,5 @@ public class Person
     public string LastName { get; set; }
     public DateTime? Birthday { get; set; }
     public Uri? Photo { get; set; }
+    public List<MoviesActors> Movies { get; set; }
 }
