@@ -1,6 +1,7 @@
 using AutoMapper;
 using CinemaWebApi.DTOs;
 using CinemaWebApi.Entities;
+using CinemaWebApi.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +24,28 @@ public class MoviesController : Controller
     public async Task<ActionResult<List<Movie>>> Get()
     {
         return await _context.Movies.ToListAsync();
+    }
+
+    [HttpGet("filter")]
+    public async Task<ActionResult<List<Movie>>> Filter([FromQuery] FilterMoviesDto filterMoviesDto)
+    {
+        var moviesQueryable = _context.Movies.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filterMoviesDto.Title))
+        {
+            moviesQueryable = moviesQueryable.Where(m => m.Title.Contains(filterMoviesDto.Title));
+        }
+
+        if (filterMoviesDto.UpcomingReleases)
+        {
+            moviesQueryable = moviesQueryable
+                .Where(m => m.ReleaseDate.ToDateTime(TimeOnly.MinValue) > DateTime.Today)
+                .OrderBy(m => m);
+        }
+
+        await HttpContext.InsertPaginationParamsInResponse(moviesQueryable, filterMoviesDto.RecordsPerPage);
+       
+        return await moviesQueryable.Paginate(filterMoviesDto).ToListAsync();
     }
 
     [HttpGet("{id:int}", Name="getMovie")]
