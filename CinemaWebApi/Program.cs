@@ -34,6 +34,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ClockSkew = TimeSpan.Zero
         });
 
+// CORS
+builder.Services.AddCors(opts =>
+{
+    opts.AddPolicy("AllowAllGet", policyBuilder => 
+        policyBuilder.AllowAnyOrigin().WithMethods("GET"));
+});
+
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
@@ -88,6 +95,8 @@ app.UseResponseCaching();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseCors();
 
 app.MapControllers();
 

@@ -7,11 +7,13 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 
 namespace CinemaWebApi.Controllers;
 
 [ApiController]
 [Route("api/movies")]
+[EnableCors(PolicyName = "AllowAllGet")]
 public class MoviesController : Controller
 {
     private readonly ILogger<MoviesController> _logger;
@@ -32,6 +34,7 @@ public class MoviesController : Controller
     }
 
     [HttpGet("filter")]
+    [DisableCors]
     public async Task<ActionResult<List<Movie>>> Filter([FromQuery] FilterMoviesDto filterMoviesDto)
     {
         var moviesQueryable = _context.Movies.AsQueryable();

@@ -4,6 +4,7 @@ using CinemaWebApi.Entities;
 using CinemaWebApi.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,7 @@ namespace CinemaWebApi.Controllers;
 
 [ApiController]
 [Route("api/genres")]
+[EnableCors(PolicyName = "AllowAllGet")]
 public class GenresController : Controller
 {
     private readonly AppDbContext _context;
