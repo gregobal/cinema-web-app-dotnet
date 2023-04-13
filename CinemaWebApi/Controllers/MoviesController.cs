@@ -5,6 +5,8 @@ using CinemaWebApi.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CinemaWebApi.Controllers;
 
@@ -81,6 +83,7 @@ public class MoviesController : Controller
     }
 
     [HttpPost]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Post([FromBody] MovieCreateDto movieCreateDto)
     {
         var movie = _mapper.Map<Movie>(movieCreateDto);
@@ -91,6 +94,7 @@ public class MoviesController : Controller
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Put(int id, [FromBody] MovieUpdateDto movieUpdateDto)
     {
         var movie = await _context.Movies.FindAsync(id);
@@ -111,6 +115,7 @@ public class MoviesController : Controller
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Delete(int id)
     {
         var exists = await _context.Movies.FindAsync(id);

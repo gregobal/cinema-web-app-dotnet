@@ -43,6 +43,7 @@ public class GenresController : Controller
     }
 
     [HttpPost]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult<Genre>> Post([FromBody] GenreCreateDto genreCreateDto)
     {
         var genre = _mapper.Map<Genre>(genreCreateDto);
@@ -53,6 +54,7 @@ public class GenresController : Controller
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Put(int id, [FromBody] GenreCreateDto genreCreateDto)
     {
         var genre = _mapper.Map<Genre>(genreCreateDto);
@@ -64,6 +66,7 @@ public class GenresController : Controller
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Delete(int id)
     {
         var exists = await _context.Genres.FindAsync(id);

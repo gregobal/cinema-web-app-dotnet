@@ -2,6 +2,8 @@ using AutoMapper;
 using CinemaWebApi.DTOs;
 using CinemaWebApi.Entities;
 using CinemaWebApi.Utils;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,6 +44,7 @@ public class PersonController : Controller
     }
 
     [HttpPost]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Post([FromBody] PersonCreateDto personCreateDto)
     {
         var person = _mapper.Map<Person>(personCreateDto);
@@ -51,6 +54,7 @@ public class PersonController : Controller
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Put(int id, [FromBody] PersonUpdateDTO personUpdateDto)
     {
         var person = await _context.Persons.FindAsync(id);
@@ -67,6 +71,7 @@ public class PersonController : Controller
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Delete(int id)
     {
         var exists = await _context.Persons.FindAsync(id);
