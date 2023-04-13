@@ -5,11 +5,15 @@ using CinemaWebApi.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 
 namespace CinemaWebApi.Controllers;
 
 [ApiController]
 [Route("api/movies")]
+[EnableCors(PolicyName = "AllowAllGet")]
 public class MoviesController : Controller
 {
     private readonly ILogger<MoviesController> _logger;
@@ -30,6 +34,7 @@ public class MoviesController : Controller
     }
 
     [HttpGet("filter")]
+    [DisableCors]
     public async Task<ActionResult<List<Movie>>> Filter([FromQuery] FilterMoviesDto filterMoviesDto)
     {
         var moviesQueryable = _context.Movies.AsQueryable();
@@ -81,6 +86,7 @@ public class MoviesController : Controller
     }
 
     [HttpPost]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Post([FromBody] MovieCreateDto movieCreateDto)
     {
         var movie = _mapper.Map<Movie>(movieCreateDto);
@@ -91,6 +97,7 @@ public class MoviesController : Controller
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Put(int id, [FromBody] MovieUpdateDto movieUpdateDto)
     {
         var movie = await _context.Movies.FindAsync(id);
@@ -111,6 +118,7 @@ public class MoviesController : Controller
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Delete(int id)
     {
         var exists = await _context.Movies.FindAsync(id);

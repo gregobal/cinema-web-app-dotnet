@@ -2,6 +2,9 @@ using AutoMapper;
 using CinemaWebApi.DTOs;
 using CinemaWebApi.Entities;
 using CinemaWebApi.Filters;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +12,7 @@ namespace CinemaWebApi.Controllers;
 
 [ApiController]
 [Route("api/genres")]
+[EnableCors(PolicyName = "AllowAllGet")]
 public class GenresController : Controller
 {
     private readonly AppDbContext _context;
@@ -41,6 +45,7 @@ public class GenresController : Controller
     }
 
     [HttpPost]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult<Genre>> Post([FromBody] GenreCreateDto genreCreateDto)
     {
         var genre = _mapper.Map<Genre>(genreCreateDto);
@@ -51,6 +56,7 @@ public class GenresController : Controller
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Put(int id, [FromBody] GenreCreateDto genreCreateDto)
     {
         var genre = _mapper.Map<Genre>(genreCreateDto);
@@ -62,6 +68,7 @@ public class GenresController : Controller
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Delete(int id)
     {
         var exists = await _context.Genres.FindAsync(id);

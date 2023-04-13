@@ -1,10 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using CinemaWebApi.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CinemaWebApi;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext
 {
     public AppDbContext([NotNull]DbContextOptions options) : base(options)
     {
