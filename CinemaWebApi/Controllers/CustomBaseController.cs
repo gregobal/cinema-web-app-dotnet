@@ -71,7 +71,7 @@ public class CustomBaseController : ControllerBase
             return NotFound();
         }
 
-        _context.Remove(new TEntity() { Id = id });
+        _context.Remove(exists);
         await _context.SaveChangesAsync();
         
         return NoContent();
