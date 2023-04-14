@@ -11,12 +11,13 @@ namespace CinemaWebApi.Controllers;
 
 [ApiController]
 [Route("api/person")]
-public class PersonController : Controller
+public class PersonController : CustomBaseController
 {
     private readonly AppDbContext _context;
     private readonly IMapper _mapper;
 
-    public PersonController(AppDbContext context, IMapper mapper)
+    public PersonController(AppDbContext context, IMapper mapper):
+        base(context, mapper)
     {
         _context = context;
         _mapper = mapper;
@@ -25,64 +26,33 @@ public class PersonController : Controller
     [HttpGet]
     public async Task<ActionResult<List<Person>>> Get([FromQuery] PaginationDto pagination)
     {
-        var queryable = _context.Persons.AsQueryable();
-        await HttpContext.InsertPaginationParamsInResponse(queryable, pagination.RecordsPerPage);
-        return await queryable.Paginate(pagination).ToListAsync();
+        return await Get<Person>(pagination);
     }
     
     [HttpGet("{id:int}", Name = "getPerson")]
     public async Task<ActionResult<Person>> Get(int id)
     {
-        var person = await _context.Persons.FindAsync(id);
-
-        if (person is null)
-        {
-            return NotFound();
-        }
-        
-        return person;
+        return await Get<Person>(id);
     }
 
     [HttpPost]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public async Task<ActionResult> Post([FromBody] PersonCreateDto personCreateDto)
+    public async Task<ActionResult<Person>> Post([FromBody] PersonCreateDto personCreateDto)
     {
-        var person = _mapper.Map<Person>(personCreateDto);
-        _context.Add(person);
-        await _context.SaveChangesAsync();
-        return new CreatedAtRouteResult("getPerson", new { id = person.Id }, person);
+        return await Post<PersonCreateDto, Person>(personCreateDto, "getPerson");
     }
 
     [HttpPut("{id:int}")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Put(int id, [FromBody] PersonUpdateDTO personUpdateDto)
     {
-        var person = await _context.Persons.FindAsync(id);
-        
-        if (person is null)
-        {
-            return NotFound();
-        }
-
-        _mapper.Map(personUpdateDto, person);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        return await Put<PersonUpdateDTO, Person>(id, personUpdateDto);
     }
 
     [HttpDelete("{id:int}")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Delete(int id)
     {
-        var exists = await _context.Persons.FindAsync(id);
-        if (exists is null)
-        {
-            return NotFound();
-        }
-
-        _context.Remove(exists);
-        await _context.SaveChangesAsync();
-        
-        return NoContent();
+        return await Delete<Person>(id);
     }
 }

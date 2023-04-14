@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CinemaWebApi.Entities;
 
-public class Movie
+public class Movie: IId
 {
     public int Id { get; set; }
     [Required]
