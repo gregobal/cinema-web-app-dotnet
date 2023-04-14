@@ -14,13 +14,14 @@ namespace CinemaWebApi.Controllers;
 [ApiController]
 [Route("api/movies")]
 [EnableCors(PolicyName = "AllowAllGet")]
-public class MoviesController : Controller
+public class MoviesController : CustomBaseController
 {
     private readonly ILogger<MoviesController> _logger;
     private readonly AppDbContext _context;
     private readonly IMapper _mapper;
 
-    public MoviesController(ILogger<MoviesController> logger, AppDbContext context, IMapper mapper)
+    public MoviesController(ILogger<MoviesController> logger, AppDbContext context, IMapper mapper): 
+        base(context, mapper)
     {
         _logger = logger;
         _context = context;
@@ -30,7 +31,7 @@ public class MoviesController : Controller
     [HttpGet]
     public async Task<ActionResult<List<Movie>>> Get()
     {
-        return await _context.Movies.ToListAsync();
+        return await Get<Movie>();
     }
 
     [HttpGet("filter")]
@@ -87,13 +88,9 @@ public class MoviesController : Controller
 
     [HttpPost]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public async Task<ActionResult> Post([FromBody] MovieCreateDto movieCreateDto)
+    public async Task<ActionResult<Movie>> Post([FromBody] MovieCreateDto movieCreateDto)
     {
-        var movie = _mapper.Map<Movie>(movieCreateDto);
-        AnnotateActorsOrder(movie);
-        _context.Add(movie);
-        await _context.SaveChangesAsync();
-        return new CreatedAtRouteResult("getMovie", new { id = movie.Id }, movie);
+        return await Post<MovieCreateDto, Movie>(movieCreateDto, "getMovie");
     }
 
     [HttpPut("{id:int}")]
@@ -121,16 +118,7 @@ public class MoviesController : Controller
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<ActionResult> Delete(int id)
     {
-        var exists = await _context.Movies.FindAsync(id);
-        if (exists is null)
-        {
-            return NotFound();
-        }
-
-        _context.Remove(exists);
-        await _context.SaveChangesAsync();
-        
-        return NoContent();
+        return await Delete<Movie>(id);
     }
 
     private static void AnnotateActorsOrder(Movie movie)
